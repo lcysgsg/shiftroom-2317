@@ -59,12 +59,38 @@
   [hidden] { display: none !important; }
   @media (max-width:640px) { .objects { grid-template-columns: 1fr; gap: 8px; } .object { display: grid; grid-template-columns: 92px 1fr; align-items: center; } .sample { height: 66px; padding: 0; } .crt, .strip { font-size: .65rem; padding: 3px; } .paper { font-size: .88rem; padding: 4px; } }
 </style>
+<link rel="stylesheet" href="./night.css">
 <main>
-  <div class="mast"><span><i class="lamp"></i>石溪站 · 夜班</span><span>第一夜 / 迟到的三声铃</span></div>
-  <header>
-    <h1><span class="clock">23:17</span><span class="room">值班室</span></h1>
-    <p class="lead">交班的人刚走，告警铃响了三声。可他临走前明明写着“23:10，水位已恢复”。这三声铃，到底是哪一分钟的事？</p>
-  </header>
+  <div class="mast"><span><i class="lamp"></i>石溪站　/　夜间值守</span><button id="sound" type="button" aria-pressed="false">开启声音</button></div>
+  <div id="atelier">
+    <header class="brief">
+      <div class="clock">23:17</div>
+      <h1>迟到的三声铃</h1>
+      <p class="lead">上一班写下“水位已恢复”，刚交班，铃却响了三声。桌上那台走纸记录仪，还记得水位真正变化的时刻。</p>
+      <button type="button" id="approach" class="primary">靠近记录仪 <span aria-hidden="true">↗</span></button>
+      <p id="scene-tip" class="quiet">拖动场景转动视角，点物件可调查。</p>
+    </header>
+    <section class="model" aria-label="可旋转的值班室模型">
+      <canvas id="room-model" tabindex="0" aria-label="三维值班室，可用左右方向键转动视角"></canvas>
+      <div id="pins">
+        <button type="button" data-pin="screen">终端</button>
+        <button type="button" data-pin="drum">记录仪</button>
+        <button type="button" data-pin="book">值班本</button>
+      </div>
+      <button id="crank" type="button" hidden aria-label="摇动手柄，可左右拖动或点击倒到上一道刻痕">摇柄 ↔</button>
+      <div class="viewbar"><span id="view-name">全景 / 值班室</span><button id="reset-view" type="button">复位视角</button></div>
+    </section>
+  </div>
+  <section id="transport" aria-labelledby="transport-title" hidden>
+    <div class="transport-head"><div><h2 id="transport-title" tabindex="-1">手摇记录仪</h2><p>往回摇动纸带。遇到刻痕时，压下取样杆。</p></div><output id="tape-time" for="spool">23:17:04</output></div>
+    <div class="tape-track"><div id="ticks" aria-hidden="true"></div><input type="range" min="180" max="1024" step="1" value="1024" id="spool" aria-label="纸带现场时刻"></div>
+    <div class="transport-actions"><button type="button" id="notch" class="secondary">倒到上一道刻痕</button><button type="button" id="stamp" class="primary">压下取样杆</button><span class="quiet" id="sample-count">已取样 0 / 3</span></div>
+    <p id="tape-hint" role="status"></p>
+    <ol id="samples" aria-label="取出的记录纸条"></ol>
+    <button id="ringback" type="button" class="secondary" hidden>重放终端的三声铃</button>
+    <button id="file-samples" type="button" class="primary" hidden>把三张纸条签入值班本</button>
+  </section>
+  <details id="paper-desk"><summary>翻阅纸面档案</summary>
   <section aria-labelledby="desk-title">
     <div class="section-head"><h2 id="desk-title">查看值班桌上的记录</h2><span class="quiet" id="progress" aria-live="polite">已翻阅 0 / 3</span></div>
     <div class="objects">
@@ -74,6 +100,7 @@
     </div>
   </section>
   <div class="actions"><span class="quiet">可以随时翻回任意一份记录。</span><button class="primary" id="report" type="button">写下判断</button></div>
+  </details>
   <section id="ending" hidden aria-labelledby="ending-title">
     <h2 id="ending-title" tabindex="-1">交班记录已补全</h2>
     <p>你把两张记录按编号对齐。三声铃挤在了同一分钟，现场的三次变化却相隔数分钟。</p>
@@ -184,10 +211,14 @@
     feedback.textContent = assess(data.get('cause'), data.getAll('proof'));
     if (feedback.textContent) return;
     judgment.close();
+    finishCase();
+  });
+
+  function finishCase() {
     report.hidden = true;
     ending.hidden = false;
     document.querySelector('#ending-title').focus();
-  });
+  }
 
   document.querySelector('#replay').addEventListener('click', () => {
     read.clear();
@@ -197,7 +228,9 @@
     ending.hidden = true;
     report.hidden = false;
     updateDesk();
-    objects[0].focus();
+    document.querySelector('#approach').focus();
   });
 </script>
+<script src="./room.js"></script>
+<script src="./recorder.js"></script>
 </html>
