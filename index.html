@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#122822">
+<title>23:17，值班室 · 迟到的三声铃</title>
+<style>
+  :root { color-scheme: dark; --bg: #112520; --ink: #f3eddb; --muted: #b2beb1; --line: #56695b; --gold: #ffd29a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); background: radial-gradient(ellipse at 16% 15%, #284638, transparent 55%), var(--bg); font: 16px/1.65 "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; }
+  main { width: min(1080px, 90%); margin: 0 auto; padding: clamp(22px, 5vw, 64px) 0 40px; }
+  .mast, .section-head, .actions { display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
+  .mast { border-bottom: 1px solid var(--line); padding-bottom: 14px; color: var(--muted); font-size: .84rem; letter-spacing: .09em; }
+  .lamp { display: inline-block; width: .55em; height: .55em; margin-right: .65em; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px #ffbe7355; }
+  header { padding: clamp(28px, 5vw, 66px) 0 28px; }
+  h1, h2, h3, p { margin: 0; }
+  h1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 24px; line-height: 1.08; }
+  .clock { font: 500 clamp(72px, 11vw, 148px)/.94 "Courier New", monospace; letter-spacing: -.09em; color: var(--gold); }
+  .room { font-size: clamp(32px, 6vw, 66px); font-weight: 550; letter-spacing: .04em; }
+  .lead { max-width: 49em; margin-top: 20px; color: #d5dece; }
+  .section-head { border-top: 1px solid var(--line); margin-top: 12px; padding: 18px 0 12px; }
+  h2 { font-size: 1.1rem; }
+  .quiet { color: var(--muted); font-size: .88rem; }
+  .objects { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 3px solid #ffae64; outline-offset: 4px; }
+  .object { border: 1px solid var(--line); border-radius: 5px; padding: 0; text-align: left; background: #1d332a; }
+  .object:hover { border-color: var(--gold); }
+  .sample { height: 110px; padding: 20px 24px; display: flex; align-items: center; justify-content: center; overflow: hidden; user-select: none; }
+  .monitor { background: #172321; }
+  .crt { font: 16px/1.48 Consolas, monospace; color: #a2d4ab; letter-spacing: .15em; border-left: 2px solid #6f9c78; padding-left: 14px; }
+  .printer { background: #38473a; }
+  .strip { display: block; padding: 7px 22px; background: #e5dfc5; color: #4f5345; transform: rotate(-6deg); border-block: 2px dashed #898e78; font: 14px/1.8 Consolas, monospace; letter-spacing: .16em; }
+  .ledger { background: #4b4633; }
+  .paper { background: repeating-linear-gradient(#e8d3a2 0px,#e8d3a2 20px,#b2a583 21px); color: #534631; padding: 8px 26px 12px; transform: rotate(4deg); font: 20px/1.55 KaiTi, Georgia, serif; box-shadow: 3px 5px 0 #0003; }
+  .caption { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 12px 15px; }
+  .caption small { color: var(--muted); }
+  .actions { margin: 22px 0; }
+  .primary, .secondary { padding: 8px 16px; border-radius: 4px; }
+  .primary { background: var(--gold); color: #29291e; border: 1px solid var(--gold); font-weight: 650; }
+  .secondary { background: transparent; border: 1px solid var(--line); }
+  .primary:hover, .secondary:hover { filter: brightness(1.13); }
+  dialog { color: var(--ink); background: #20362c; border: 1px solid #72806d; border-radius: 7px; width: min(520px, calc(100% - 32px)); max-height: 85vh; overflow-y: auto; padding: clamp(20px, 4vw, 34px); box-shadow: 0 16px 80px #0008; }
+  dialog::backdrop { background: #06100de0; }
+  dialog h2, #ending h2 { font-size: 1.6rem; margin-bottom: 15px; }
+  dialog dl, dialog blockquote { margin: 18px 0; }
+  dialog blockquote { padding-left: 15px; border-left: 3px solid var(--gold); }
+  dialog table { width: 100%; margin: 16px 0; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  td, th { text-align: left; border-bottom: 1px solid var(--line); padding: 6px 4px; }
+  th { font-size: .84rem; color: var(--muted); }
+  fieldset { border: 0; padding: 0; margin: 16px 0; }
+  legend { color: var(--gold); margin-bottom: 5px; }
+  label { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; cursor: pointer; }
+  input { accent-color: #ffc485; }
+  .feedback { color: var(--gold); }
+  .feedback:not(:empty) { margin: 14px 0; border-left: 2px solid; padding-left: 12px; }
+  #ending { padding: 25px; background: #213a2d; border: 1px solid var(--line); }
+  #ending ol { padding-left: 1.5em; }
+  [hidden] { display: none !important; }
+  @media (max-width:640px) { .objects { grid-template-columns: 1fr; gap: 8px; } .object { display: grid; grid-template-columns: 92px 1fr; align-items: center; } .sample { height: 66px; padding: 0; } .crt, .strip { font-size: .65rem; padding: 3px; } .paper { font-size: .88rem; padding: 4px; } }
+</style>
+<main>
+  <div class="mast"><span><i class="lamp"></i>石溪站 · 夜班</span><span>第一夜 / 迟到的三声铃</span></div>
+  <header>
+    <h1><span class="clock">23:17</span><span class="room">值班室</span></h1>
+    <p class="lead">交班的人刚走，告警铃响了三声。可他临走前明明写着“23:10，水位已恢复”。这三声铃，到底是哪一分钟的事？</p>
+  </header>
+  <section aria-labelledby="desk-title">
+    <div class="section-head"><h2 id="desk-title">查看值班桌上的记录</h2><span class="quiet" id="progress" aria-live="polite">已翻阅 0 / 3</span></div>
+    <div class="objects">
+      <button type="button" class="object" data-clue="screen"><span class="sample monitor" aria-hidden="true"><span class="crt">23:17:02<br>23:17:03</span></span><span class="caption"><b>值班终端</b><small>查看</small></span></button>
+      <button type="button" class="object" data-clue="roll"><span class="sample printer" aria-hidden="true"><span class="strip">#041 ·····<br>#042 ·····</span></span><span class="caption"><b>柜内记录纸</b><small>查看</small></span></button>
+      <button type="button" class="object" data-clue="book"><span class="sample ledger" aria-hidden="true"><span class="paper">晚班交接</span></span><span class="caption"><b>交接班本</b><small>查看</small></span></button>
+    </div>
+  </section>
+  <div class="actions"><span class="quiet">可以随时翻回任意一份记录。</span><button class="primary" id="report" type="button">写下判断</button></div>
+  <section id="ending" hidden aria-labelledby="ending-title">
+    <h2 id="ending-title" tabindex="-1">交班记录已补全</h2>
+    <p>你把两张记录按编号对齐。三声铃挤在了同一分钟，现场的三次变化却相隔数分钟。</p>
+    <ol><li>23:04 至 23:09，水位变化，最后回到正常区间。</li><li>23:10，上一班确认水位恢复并记入交接班本。</li><li>23:16，终端通信恢复。23:17，三条旧记录陆续送达。</li></ol>
+    <button class="secondary" type="button" id="replay">重新值班</button>
+  </section>
+</main>
+<dialog id="reader" aria-labelledby="clue-title">
+  <h2 id="clue-title"></h2><div id="clue-body"></div>
+  <form method="dialog"><button class="secondary">放回桌上</button></form>
+</dialog>
+<template id="screen">
+  <p>三声铃对应三行新消息。终端的消息栏默认按入屏顺序排列。</p>
+  <table><thead><tr><th>编号</th><th>入屏时间</th><th>消息</th></tr></thead><tbody>
+    <tr><td>#041</td><td>23:17:02</td><td>水位偏高</td></tr><tr><td>#042</td><td>23:17:03</td><td>水位高</td></tr><tr><td>#043</td><td>23:17:04</td><td>水位恢复</td></tr>
+  </tbody></table>
+</template>
+<template id="roll">
+  <p>柜门内侧夹着一截记录纸。现场记录仪独立走纸，每次水位状态改变便当场打印一行。</p>
+  <table><thead><tr><th>编号</th><th>现场时刻</th><th>状态</th></tr></thead><tbody>
+    <tr><td>#041</td><td>23:04:12</td><td>偏高</td></tr><tr><td>#042</td><td>23:06:31</td><td>高</td></tr><tr><td>#043</td><td>23:09:48</td><td>恢复</td></tr>
+  </tbody></table>
+</template>
+<template id="book">
+  <p>值班本翻在今晚这一页。前两行是上一班的笔迹，最后一行是你的。</p>
+  <blockquote>23:01　终端通信中断，去柜旁查看。<br>23:10　水位已恢复，柜旁确认。<br>23:16　通信灯转绿。</blockquote>
+</template>
+<dialog id="judgment" aria-labelledby="report-title">
+  <h2 id="report-title">交班补记</h2>
+  <form id="answer">
+    <fieldset><legend>23:17 的三声铃该怎么解释？</legend>
+      <label><input type="radio" name="cause" value="new">水位在 23:17 接连发生三次变化。</label>
+      <label><input type="radio" name="cause" value="late">此前发生的三次变化，在通信恢复后集中送达。</label>
+      <label><input type="radio" name="cause" value="duplicate">同一条水位告警被终端重复播放了三次。</label>
+    </fieldset>
+    <fieldset><legend>哪两份记录能逐条核对现场时刻和入屏时刻？</legend>
+      <label><input type="checkbox" name="proof" value="screen">值班终端</label>
+      <label><input type="checkbox" name="proof" value="roll">柜内记录纸</label>
+      <label><input type="checkbox" name="proof" value="book">交接班本</label>
+    </fieldset>
+    <p id="feedback" class="feedback" role="status"></p>
+    <div class="actions"><button class="secondary" type="button" id="recheck">再看一眼</button><button class="primary" type="submit">签入值班本</button></div>
+  </form>
+</dialog>
+<script>
+  const reader = document.querySelector('#reader');
+  const judgment = document.querySelector('#judgment');
+  const answer = document.querySelector('#answer');
+  const feedback = document.querySelector('#feedback');
+  const report = document.querySelector('#report');
+  const ending = document.querySelector('#ending');
+  const read = new Set();
+  const objects = [...document.querySelectorAll('[data-clue]')];
+
+  function updateDesk() {
+    document.querySelector('#progress').textContent = '已翻阅 ' + read.size + ' / ' + objects.length;
+    for (const object of objects) {
+      object.querySelector('small').textContent = read.has(object.dataset.clue) ? '重看' : '查看';
+    }
+  }
+
+  for (const object of objects) {
+    object.addEventListener('click', () => {
+      const clue = object.dataset.clue;
+      document.querySelector('#clue-title').textContent = object.querySelector('b').textContent;
+      document.querySelector('#clue-body').replaceChildren(document.getElementById(clue).content.cloneNode(true));
+      read.add(clue);
+      updateDesk();
+      reader.showModal();
+    });
+  }
+
+  report.addEventListener('click', () => {
+    feedback.textContent = '';
+    judgment.showModal();
+  });
+  document.querySelector('#recheck').addEventListener('click', () => judgment.close());
+
+  function assess(cause, proofs) {
+    if (!cause || proofs.length !== 2) return '请写下一种解释，再附上两份记录。';
+    if (proofs.some(clue => !read.has(clue))) return '你还没翻过其中的记录。回桌边看一眼，再决定能否引用。';
+    if (cause === 'duplicate') return '如果是同一条消息重复播放，三行的编号和状态应该是什么样？';
+    if (cause === 'new') return '如果变化发生在 23:17，现场记录仪的走纸时间也应当吻合。';
+    if (!proofs.includes('screen') || !proofs.includes('roll')) return '交接班本能说明通信状态。要把三条消息逐条对应，还需要两份都带编号的记录。';
+    if (!read.has('book')) return '两组时间能对上了。再找一条记录，确认中间到底发生了什么。';
+    return '';
+  }
+
+  answer.addEventListener('submit', event => {
+    event.preventDefault();
+    const data = new FormData(answer);
+    feedback.textContent = assess(data.get('cause'), data.getAll('proof'));
+    if (feedback.textContent) return;
+    judgment.close();
+    report.hidden = true;
+    ending.hidden = false;
+    document.querySelector('#ending-title').focus();
+  });
+
+  document.querySelector('#replay').addEventListener('click', () => {
+    read.clear();
+    answer.reset();
+    feedback.textContent = '';
+    ending.hidden = true;
+    report.hidden = false;
+    updateDesk();
+    objects[0].focus();
+  });
+</script>
+</html>
