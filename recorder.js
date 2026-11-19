@@ -42,6 +42,7 @@
   function clearPlayback(){
     for(const timer of timers)clearTimeout(timer);
     timers.length=0;ringback.disabled=false;
+    window.nightRoom?.replay(false);
     for(const item of collected.values())item.classList.remove('received');
   }
   function nearMark(){
@@ -62,6 +63,7 @@
     document.querySelector('main').classList.toggle('recording',open);
     select('view-name').textContent=open?'近景 / 走纸记录仪':'全景 / 值班室';
     approach.textContent=open?'返回值班室全景':'靠近记录仪 ↗';
+    approach.setAttribute('aria-label',open?'返回值班室全景':'靠近记录仪');
     approach.setAttribute('aria-expanded',String(open));
     select('scene-tip').textContent=open?'左右拖动摇柄倒带，或使用下方纸带滑轨。':'拖动场景转动视角，点物件可调查。';
     window.nightRoom?.focus(open);
@@ -114,6 +116,7 @@
   });
   ringback.addEventListener('click',()=>{
     clearPlayback();ringback.disabled=true;file.hidden=true;
+    window.nightRoom?.replay(true);
     window.nightRoom?.focus(false);handle.hidden=true;
     select('view-name').textContent='重放 / 终端入屏';
     function receive(rec){
@@ -121,12 +124,12 @@
       const slip=collected.get(rec.id);
       slip.classList.add('received');slip.textContent=rec.id+'　现场 '+rec.time+' → 入屏 '+rec.received;
       hint.textContent='叮。终端收到 '+rec.id+'，入屏时刻 '+rec.received+'。';
-      window.nightRoom?.bell();note(820,.49);note(1320,.26,'sine',.032);
+      window.nightRoom?.bell(rec);note(820,.49);note(1320,.26,'sine',.032);
     }
     records.forEach((rec,i)=>timers.push(setTimeout(()=>receive(rec),i*1000)));
     timers.push(setTimeout(()=>{
       ringback.disabled=false;file.hidden=false;hint.textContent='三条入屏记录只相隔两秒。把它们和桌上的现场时刻对照，再签入值班本。';
-      select('view-name').textContent='近景 / 走纸记录仪';handle.hidden=!window.nightRoom;window.nightRoom?.focus(true);
+      select('view-name').textContent='近景 / 走纸记录仪';handle.hidden=!window.nightRoom;window.nightRoom?.replay(false);window.nightRoom?.focus(true);
     },2750));
   });
   file.addEventListener('click',()=>{
