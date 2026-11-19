@@ -113,6 +113,7 @@
       <label><input type="checkbox" name="proof" value="screen">值班终端</label>
       <label><input type="checkbox" name="proof" value="roll">柜内记录纸</label>
       <label><input type="checkbox" name="proof" value="book">交接班本</label>
+      <p id="proof-count" class="quiet" aria-live="polite">已选 0 份，需选 2 份。</p>
     </fieldset>
     <p id="feedback" class="feedback" role="status"></p>
     <div class="actions"><button class="secondary" type="button" id="recheck">再看一眼</button><button class="primary" type="submit">签入值班本</button></div>
@@ -122,6 +123,7 @@
   const reader = document.querySelector('#reader');
   const judgment = document.querySelector('#judgment');
   const answer = document.querySelector('#answer');
+  const proofCount = document.querySelector('#proof-count');
   const feedback = document.querySelector('#feedback');
   const report = document.querySelector('#report');
   const ending = document.querySelector('#ending');
@@ -152,13 +154,27 @@
   });
   document.querySelector('#recheck').addEventListener('click', () => judgment.close());
 
+  function updateProofCount() {
+    const count = answer.querySelectorAll('input[name="proof"]:checked').length;
+    proofCount.textContent = count > 2
+      ? '已选 3 份。请取消 1 份，再提交。'
+      : '已选 ' + count + ' 份，需选 2 份。';
+  }
+
+  answer.addEventListener('change', () => {
+    feedback.textContent = '';
+    updateProofCount();
+  });
+
   function assess(cause, proofs) {
-    if (!cause || proofs.length !== 2) return '请写下一种解释，再附上两份记录。';
+    if (!cause) return '请在上方选择一种解释。';
+    if (proofs.length < 2) return '还需勾选 ' + (2 - proofs.length) + ' 份记录。';
+    if (proofs.length > 2) return '只需提交两份记录，请取消其中一份。';
     if (proofs.some(clue => !read.has(clue))) return '你还没翻过其中的记录。回桌边看一眼，再决定能否引用。';
     if (cause === 'duplicate') return '如果是同一条消息重复播放，三行的编号和状态应该是什么样？';
     if (cause === 'new') return '如果变化发生在 23:17，现场记录仪的走纸时间也应当吻合。';
     if (!proofs.includes('screen') || !proofs.includes('roll')) return '交接班本能说明通信状态。要把三条消息逐条对应，还需要两份都带编号的记录。';
-    if (!read.has('book')) return '两组时间能对上了。再找一条记录，确认中间到底发生了什么。';
+    if (!read.has('book')) return '这两份证据已对上。点“再看一眼”翻阅交接班本，确认通信情况，再回来提交。已选的两份证据会保留。';
     return '';
   }
 
@@ -176,6 +192,7 @@
   document.querySelector('#replay').addEventListener('click', () => {
     read.clear();
     answer.reset();
+    updateProofCount();
     feedback.textContent = '';
     ending.hidden = true;
     report.hidden = false;
